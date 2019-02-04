@@ -29,7 +29,7 @@
 include(dirname(__FILE__).'/../../config/config.inc.php');
 include(dirname(__FILE__).'/btcpay.php');
 
-$btcpay = new btcpay();
+$btcpay = new BTCpay();
 
 $post = file_get_contents('php://input');
 if (!$post) {
@@ -99,6 +99,10 @@ if (true == array_key_exists('name', $event)
     && $event['name'] === "invoice_created"
     && $btcpay_ordermode === "beforepayment" ) {
 
+   // sleep to not receive ipn notification
+   // before the update of bitcoin order table
+   sleep(15);
+
     // check if we have needed data
     if (true === empty($data)) {
         PrestaShopLogger::addLog('[Error] No data',3);
@@ -159,8 +163,8 @@ if (true == array_key_exists('name', $event)
             $status_btcpay,
             $cart_total,
             $display_name, //bitcoin btcpay
-            $rate, //message
-            array(), //extravars
+            null, //message should be new Message
+            array(), //extravars for mail
             null, //currency special
             false, // don't touch amount
             $secure_key
@@ -208,6 +212,10 @@ if (true == array_key_exists('name', $event)
 if (true == array_key_exists('name', $event)
    && $event['name'] === 'invoice_receivedPayment'
    && $btcpay_ordermode === 'afterpayment' ) {
+
+   // sleep to not receive ipn notification
+   // before the update of bitcoin order table
+   sleep(15);
 
    // check if we have needed data
    if (true === empty($data)) {
@@ -386,7 +394,8 @@ if (true === array_key_exists('name', $event)
 }
 
 if (true === array_key_exists('name', $event)
-    && $event['name'] === 'invoice_failedToConfirm' or $event['name'] === 'invoice_markedInvalid' ) {
+    && $event['name'] === 'invoice_failedToConfirm'
+    or $event['name'] === 'invoice_markedInvalid' ) {
 
     if (true === empty($data)) {
         PrestaShopLogger::addLog('[Error] invalide json', 3);
