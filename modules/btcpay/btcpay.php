@@ -624,7 +624,7 @@ class BTCpay extends PaymentModule {
 
       // If another BTCPay invoice was created before, returns the original one
       $redirect = $this->get_btcpay_redirect($cart_id, $client);
-      if($redirect)
+      if( $redirect and $redirect !== 'expired' )
       {
           PrestaShopLogger::addLog('Existing BTCPay invoice has already been created, redirecting to it...' . $invoice->getId(), 2);
 
@@ -710,7 +710,12 @@ class BTCpay extends PaymentModule {
             $result_invoice_id = $this->get_order_field($cart_id, 'invoice_id');
             $invoice = $client->getInvoice($result_invoice_id);
             $status = $invoice->getStatus();
-            if($status === 'invalid' || $status === 'expired')
+
+            if( $status === 'expired' )
+            {
+                $redirect = 'expired';
+            }
+            if( $status === 'invalid' )
             {
                 $redirect = null;
             }
