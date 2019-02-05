@@ -172,6 +172,25 @@ if (true == array_key_exists('name', $event)
 
        $order_id = (int)Order::getIdByCartId($cart_id);
 
+       // get redirect url to give it as a order details message
+       $db = Db::getInstance();
+       $result = array();
+       $result = $db->ExecuteS("SELECT `redirect` FROM `" . _DB_PREFIX_ . "order_bitcoin` WHERE `invoice_id`='" . $invoice_id . "';");
+       if (count($result) > 0 && $result[0] !== null && $result[0]['redirect'] !== null) {
+           $order_id = $result[0]['redirect'];
+
+           // add private message with redirect URL
+           $msg = new Message();
+           $msg->message = $result;
+           $msg->id_order = (int)$order_id;
+           // should be public asap
+           $msg->private = 1;
+           $msg->save();
+
+       } else {
+          PrestaShopLogger::addLog('[Error] no redirect found', 3);
+       }
+
        // register order id for payment in BTC
        $db = Db::getInstance();
        $query = 'UPDATE `' . _DB_PREFIX_ . "order_bitcoin` SET `id_order`='". $order_id ."' WHERE `invoice_id`='" . $invoice_id . "';";
@@ -283,6 +302,25 @@ if (true == array_key_exists('name', $event)
        );
 
        $order_id = (int)Order::getIdByCartId($cart_id);
+
+       // get redirect url to give it as a order details message
+       $db = Db::getInstance();
+       $result = array();
+       $result = $db->ExecuteS("SELECT `redirect` FROM `" . _DB_PREFIX_ . "order_bitcoin` WHERE `invoice_id`='" . $invoice_id . "';");
+       if (count($result) > 0 && $result[0] !== null && $result[0]['redirect'] !== null) {
+           $order_id = $result[0]['redirect'];
+
+           // add private message with redirect URL
+           $msg = new Message();
+           $msg->message = $result;
+           $msg->id_order = (int)$order_id;
+           // should be public asap
+           $msg->private = 1;
+           $msg->save();
+
+       } else {
+          PrestaShopLogger::addLog('[Error] no redirect found', 3);
+       }
 
        // register order id for payment in BTC
        $db = Db::getInstance();
