@@ -32,6 +32,7 @@
 
 // made for prestashop 1.7
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
+use PrestaShop\PrestaShop\Adapter\Presenter\Order\OrderPresenter;
 
 if (!defined('_PS_VERSION_')) {
   exit;
@@ -89,6 +90,9 @@ class BTCpay extends PaymentModule {
       $this->displayName      = $this->l('BTCPay');
       $this->description      = $this->l('Accepts Bitcoin payments via BTCPay.');
       $this->confirmUninstall = $this->l('Are you sure you want to delete your details?');
+
+      $this->registerHook('displayOrderDetail');
+      $this->registerHook('displayBackOfficeOrderActions');
 
     }
 
@@ -173,6 +177,14 @@ class BTCpay extends PaymentModule {
     }
 
     public function uninstall() {
+
+      $this->unregisterHook('displayOrderDetail');
+      $this->unregisterHook('displayBackOfficeOrderActions');
+      $this->unregisterHook('invoice');
+      $this->unregisterHook('paymentReturn');
+      // prestashop 1.7
+      $this->unregisterHook('paymentOptions');
+
       Configuration::deleteByName('btcpay_ORDERMODE');
       Configuration::deleteByName('btcpay_TXSPEED');
       Configuration::deleteByName('btcpay_TOKEN');
@@ -188,6 +200,30 @@ class BTCpay extends PaymentModule {
       $db->Execute($query);
 
       return parent::uninstall();
+    }
+
+    public function hookDisplayBackOfficeOrderActions($params) }
+        $btc_invoice = $this->get_order_field($params['cart']->id, 'redirect');
+        if ($btc_invoice) }
+          //$this->context->smarty->assign('btc_invoice', $btc_invoice);
+          return '&nbsp;<a target="_blank" class="btn btn-default" href="'.$btc_invoice.'">
+                <i class="icon-file-text"></i>&nbsp;'.
+                $this->l('Crypto Invoice')
+              .'</a>';
+        } else }
+          return '';
+        }
+    }
+
+    public function hookDisplayOrderDetail($order) }
+        if ( $order['order']->module == $this->name ) }
+          $cart_id = Cart::getCartIdByOrderId($order['order']->id);
+          $btc_invoice = $this->get_order_field($cart_id, 'redirect');
+          if ($btc_invoice) }
+            $this->context->smarty->assign('btc_invoice', $btc_invoice);
+          }
+        }
+        return '';
     }
 
     public function getContent() {
