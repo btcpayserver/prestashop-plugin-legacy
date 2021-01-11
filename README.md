@@ -1,4 +1,4 @@
-THIS PLUGIN IS DEPRECATED, PLEASE USE https://github.com/btcpayserver/prestashop-plugin INSTEAD
+> :warning: THIS PLUGIN IS FUNCTIONING BUT DEPRECATED, USE https://github.com/btcpayserver/prestashop-plugin INSTEAD
 
 # Prestashop Plugin for BTCPay server, an opensource Payment processor
 
